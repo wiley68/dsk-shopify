@@ -1,0 +1,26 @@
+{%- comment -%}
+  Leasing button (minimal POST)
+  - Sends: shop, variant_id, product_title, token
+  - Validates price server-side later
+{%- endcomment -%}
+
+{%- assign enabled = settings.leasing_enabled -%}
+{%- assign action_url = settings.leasing_url | default: '' | strip -%}
+{%- assign label = settings.leasing_button_label | default: 'Buy on leasing' -%}
+{%- assign token = settings.leasing_token | default: '' -%}
+
+{%- if enabled and action_url != '' -%}
+  <form method="post" action="{{ action_url }}" class="leasing-form" style="margin-top:12px;">
+    <input type="hidden" name="token" value="{{ token | escape }}">
+    <input type="hidden" name="product_title" value="{{ product.title | escape }}">
+    <input type="hidden" name="variant_id" value="{{ product.selected_or_first_available_variant.id }}">
+    <input
+      type="hidden"
+      name="price"
+      value="{{ product.selected_or_first_available_variant.price | divided_by: 100.0 }}"
+    >
+    <button type="submit" class="button button--secondary button--full-width">
+      {{ label | escape }}
+    </button>
+  </form>
+{%- endif -%}

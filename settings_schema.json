@@ -1,0 +1,28 @@
+{
+  "name": "Leasing",
+  "settings": [
+   {
+      "type": "checkbox",
+      "id": "leasing_enabled",
+      "label": "Enable leasing button",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "leasing_button_label",
+      "label": "Leasing button label",
+      "default": "Buy on leasing"
+    },
+    {
+      "type": "text",
+      "id": "leasing_url",
+      "label": "Leasing URL",
+      "default": "https://example.com/lease"
+    },
+    {
+      "type": "text",
+      "id": "leasing_token",
+      "label": "Merchant token (non-secret)"
+    }
+  ]
+}
