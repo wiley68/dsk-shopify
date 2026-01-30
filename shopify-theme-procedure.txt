@@ -14,21 +14,24 @@
    shopify theme pull -s esjmyi-8f.myshopify.com --theme <THEME_ID>
 
 5) Локални промени
-   - Редактирай нужните .liquid файлове (sections/snippets/templates)
-   - Добави/обнови schema settings (ако трябва)
-   - Вмъкни render на snippet-а там, където е логично за темата
-     (често се намира най-лесно през Theme Editor -> Inspect -> после търсиш по клас/контейнер)
+   - Добави/обнови Theme settings (config/settings_schema.json)
+   - Добави snippet-а, snippets/leasing-button.liquid
 
 6) Dev preview (hot reload без push)
    shopify theme dev -s esjmyi-8f.myshopify.com
    - Отвори URL-то, което CLI показва (обикновено localhost / 127.0.0.1)
    - Правиш промени и ги виждаш веднага
+   - Правим промени в настройките от Theme settings/Leasing
+   - Добавяме блок там къде искаме (продуктова страница). Използваме Custom Liquid
+   - Custom Liquid: {% render 'leasing-button', product: product %}
 
 7) Push като unpublished (safe deploy)
    shopify theme push -s esjmyi-8f.myshopify.com --unpublished
    - В Admin: Online Store -> Themes -> Theme library ще видиш новата unpublished тема
    - Preview / Customize
    - Publish когато си готов
+   
+8) - 5 и 6 отново. Но вече в самия магазин.
 
 По избор (удобни допълнения)
 A) Push към конкретна unpublished тема (за да не се създава нова всеки път)
