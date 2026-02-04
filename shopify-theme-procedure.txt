@@ -1,0 +1,53 @@
+Работеща процедура за промени по Shopify тема (пример: esjmyi-8f.myshopify.com)
+
+1) Папка за проекта
+   - Създай папка за магазина (напр. esjmyi-8f/)
+   - Влез в папката
+
+2) Login (админ акаунт или Partner access с Themes права)
+   shopify auth login
+
+3) Намиране на Theme ID
+   shopify theme list -s esjmyi-8f.myshopify.com
+
+4) Изтегляне на темата локално (pull)
+   shopify theme pull -s esjmyi-8f.myshopify.com --theme <THEME_ID>
+
+5) Локални промени
+   - Добави/обнови Theme settings (config/settings_schema.json)
+   {
+     "name": "PB Personal Finance",
+     "settings": [
+        {
+          "type": "checkbox",
+          "id": "jetcredit_enabled",
+          "label": "Бутон лизинг",
+          "default": true
+        }
+     ]
+   }
+   - Добави snippet-а, snippets/leasing-button.liquid
+
+6) Dev preview (hot reload без push)
+   shopify theme dev -s esjmyi-8f.myshopify.com
+   - Отвори URL-то, което CLI показва (обикновено localhost / 127.0.0.1)
+   - Правиш промени и ги виждаш веднага
+   - Правим промени в настройките от Theme settings/Leasing
+   - Добавяме блок там къде искаме (продуктова страница). Използваме Custom Liquid
+   - Custom Liquid: {% render 'jetcredit-product', product: product %}
+
+7) Push като unpublished (safe deploy)
+   shopify theme push -s esjmyi-8f.myshopify.com --unpublished
+   - В Admin: Online Store -> Themes -> Theme library ще видиш новата unpublished тема
+   - Preview / Customize
+   - Publish когато си готов
+   
+8) - 5 и 6 отново. Но вече в самия магазин.
+
+По избор (удобни допълнения)
+A) Push към конкретна unpublished тема (за да не се създава нова всеки път)
+   1) shopify theme list -s esjmyi-8f.myshopify.com
+   2) shopify theme push -s esjmyi-8f.myshopify.com --theme <UNPUBLISHED_THEME_ID>
+
+B) Добра практика
+   - Дръж проекта в git repo (branch-ове по клиенти/магазини или по feature-и)

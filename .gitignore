@@ -1,0 +1,8 @@
+# Игнорирай всичко
+*
+
+# Допускай само тези файлове
+!.gitignore
+!shopify-theme-procedure.txt
+!snippets/
+!snippets/jetcredit-product.liquid
