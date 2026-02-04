@@ -1,0 +1,18 @@
+{% comment %}
+  DSK Credit API – бутон за покупка на изплащане.
+  Показва се само ако dskapi_status е включен и dskapi_cid е попълнен (не празно).
+{% endcomment %}
+
+{% assign show_dskapi = false %}
+{% if settings.dskapi_status and settings.dskapi_cid != blank %}
+  {% assign show_dskapi = true %}
+{% endif %}
+
+{% if show_dskapi %}
+  {% assign gap = settings.dskapi_gap | default: 0 %}
+  {% if gap < 0 %}{% assign gap = 0 %}{% endif %}
+
+  <div id="dskapi-product-button-container" style="margin-top: {{ gap }}px;">
+    <button type="button" id="btn_dskapi" class="button button-secondary">Купи на изплащане</button>
+  </div>
+{% endif %}
