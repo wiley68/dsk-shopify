@@ -5,6 +5,7 @@
 
 // Debug режим - задай на false за production
 define('DB_DEBUG', true);
+defined('PLATFORM_SHOPIFY') or define('PLATFORM_SHOPIFY', 2);
 
 /**
  * Чете конфигурацията от configdsk.ini файла
@@ -12,7 +13,7 @@ define('DB_DEBUG', true);
  */
 function get_db_config(): array|false
 {
-    $configFile = __DIR__ . '/../configdsk.ini';
+    $configFile = __DIR__ . '/../../configdsk.ini';
     
     if (!file_exists($configFile)) {
         return false;
@@ -104,12 +105,12 @@ function validate_shop_in_db(string $cid, string $shopDomain, string $shopPerman
         $sql = "SELECT name, unicid, type, dsk_status 
                 FROM calculators 
                 WHERE unicid = :cid 
-                AND type = 13 
-                AND dsk_status = 1
+                AND type = :platform 
+                AND dsk_status = 1 
                 LIMIT 1";
         
         $stmt = $pdo->prepare($sql);
-        $stmt->execute([':cid' => $cid]);
+        $stmt->execute([':cid' => $cid, ':platform' => PLATFORM_SHOPIFY]);
         $result = $stmt->fetch();
         
         if ($result === false) {
