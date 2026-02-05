@@ -190,6 +190,15 @@ $product_variant_id = $_POST['product_variant_id'] ?? '';
 $shop_domain = $_POST['shop_domain'] ?? '';
 $shop_permanent_domain = $_POST['shop_permanent_domain'] ?? '';
 $cid = $_POST['cid'] ?? '';
+$timestamp = isset($_POST['ts']) ? (int)$_POST['ts'] : 0;
+
+// Timestamp guard - блокирай replay атаки и стари заявки
+$currentTime = time();
+$timestampWindow = 300; // 5 минути в секунди
+if ($timestamp === 0 || abs($currentTime - $timestamp) > $timestampWindow) {
+    http_response_code(403);
+    exit('Invalid or expired timestamp');
+}
 
 // Валидация на задължителни полета - блокирай ако липсват
 $requiredFields = [

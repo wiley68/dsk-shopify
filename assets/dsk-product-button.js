@@ -41,7 +41,8 @@
       product_variant_id: container.dataset.productVariantId || '',
       shop_domain: container.dataset.shopDomain || window.location.hostname,
       shop_permanent_domain: container.dataset.shopPermanentDomain || '',
-      cid: container.dataset.cid || ''
+      cid: container.dataset.cid || '',
+      ts: String(Math.floor(Date.now() / 1000)) // Unix timestamp в секунди като string
     };
 
     // Изчистване на iframe контейнера
