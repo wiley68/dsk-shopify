@@ -12,8 +12,26 @@
   {% assign gap = settings.dskapi_gap | default: 0 %}
   {% if gap < 0 %}{% assign gap = 0 %}{% endif %}
 
+  {% comment %} Получаване на данни за продукта {% endcomment %}
+  {% assign product_id = product.id | default: '' %}
+  {% assign product_title = product.title | default: '' %}
+  {% assign product_price = product.selected_or_first_available_variant.price | default: product.price | default: 0 %}
+  {% assign product_variant_id = product.selected_or_first_available_variant.id | default: '' %}
+  {% assign shop_domain = shop.domain | default: shop.permanent_domain | default: '' %}
+
   {{ 'dsk-product-button.css' | asset_url | stylesheet_tag }}
-  <div id="dskapi-product-button-container" style="margin-top: {{ gap }}px;">
+  {{ 'dsk-product-button.js' | asset_url | script_tag }}
+
+  <div
+    id="dskapi-product-button-container"
+    style="margin-top: {{ gap }}px;"
+    data-product-id="{{ product_id }}"
+    data-product-title="{{ product_title | escape }}"
+    data-product-price="{{ product_price }}"
+    data-product-variant-id="{{ product_variant_id }}"
+    data-shop-domain="{{ shop_domain }}"
+    data-cid="{{ settings.dskapi_cid }}"
+  >
     <button type="button" id="btn_dskapi" class="button button-secondary">
       <span class="dskapi-btn-text">Купи на кредит от</span>
       <span class="dskapi-btn-logo">

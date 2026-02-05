@@ -1,0 +1,18 @@
+# DSK Credit API - Override CSP headers from root .htaccess
+# Този файл презаписва Content-Security-Policy от root директорията
+# за да позволи вграждане в iframe от Shopify магазини
+
+<IfModule mod_headers.c>
+    # Премахване на стария CSP header (ако е зададен с Header set)
+    Header unset Content-Security-Policy
+    
+    # Задаване на нов CSP header който позволява вграждане в iframe
+    # 'always' гарантира че header-ът винаги се изпраща, дори ако има друг от root
+    Header always set Content-Security-Policy "frame-ancestors *"
+    
+    # Премахване на X-Frame-Options ако съществува
+    Header unset X-Frame-Options
+</IfModule>
+
+# Забележка: Ако искаш по-строга сигурност за production, промени на:
+# Header always set Content-Security-Policy "frame-ancestors 'self' https://*.myshopify.com https://*.shopifycdn.com"

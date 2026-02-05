@@ -9,3 +9,7 @@
 !assets/
 !assets/dsk-logo-color.svg
 !assets/dsk-product-button.css
+!assets/dsk-product-button.js
+!app/
+!app/.htaccess
+!app/app.php
