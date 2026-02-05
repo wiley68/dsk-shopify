@@ -3,6 +3,9 @@
  * Database connection и помощни функции за работа с PostgreSQL
  */
 
+// Debug режим - задай на false за production
+define('DB_DEBUG', true);
+
 /**
  * Чете конфигурацията от configdsk.ini файла
  * @return array Масив с данни за базата данни или false при грешка
@@ -39,6 +42,10 @@ function get_db_connection(): PDO|false
     
     $config = get_db_config();
     if ($config === false) {
+        if (DB_DEBUG) {
+            http_response_code(500);
+            exit('Database config file not found or invalid');
+        }
         return false;
     }
     
@@ -49,6 +56,10 @@ function get_db_connection(): PDO|false
     $password = $config['password'] ?? '';
     
     if (empty($dbname) || empty($user)) {
+        if (DB_DEBUG) {
+            http_response_code(500);
+            exit('Database config incomplete (missing dbname or user)');
+        }
         return false;
     }
     
@@ -62,7 +73,10 @@ function get_db_connection(): PDO|false
         
         return $pdo;
     } catch (PDOException $e) {
-        // Не логваме грешката директно за сигурност, но можем да върнем false
+        if (DB_DEBUG) {
+            http_response_code(500);
+            exit('Database connection error: ' . htmlspecialchars($e->getMessage()));
+        }
         return false;
     }
 }
@@ -78,6 +92,10 @@ function validate_shop_in_db(string $cid, string $shopDomain, string $shopPerman
 {
     $pdo = get_db_connection();
     if ($pdo === false) {
+        if (DB_DEBUG) {
+            http_response_code(500);
+            exit('Database connection failed');
+        }
         return false;
     }
     
@@ -95,6 +113,10 @@ function validate_shop_in_db(string $cid, string $shopDomain, string $shopPerman
         $result = $stmt->fetch();
         
         if ($result === false) {
+            if (DB_DEBUG) {
+                http_response_code(403);
+                exit('Shop not found in database (CID: ' . htmlspecialchars($cid) . ', Domain: ' . htmlspecialchars($shopDomain) . ')');
+            }
             return false;
         }
         
@@ -145,12 +167,21 @@ function validate_shop_in_db(string $cid, string $shopDomain, string $shopPerman
         }
         
         if (!$domainMatch) {
+            if (DB_DEBUG) {
+                http_response_code(403);
+                exit('Domain mismatch. DB: ' . htmlspecialchars($dbDomainClean) . 
+                     ', Request: ' . htmlspecialchars($shopDomainClean) . 
+                     ' / ' . htmlspecialchars($shopPermanentDomainClean));
+            }
             return false;
         }
         
         return $result;
     } catch (PDOException $e) {
-        // При грешка в базата данни, не разкриваме детайли
+        if (DB_DEBUG) {
+            http_response_code(500);
+            exit('Database query error: ' . htmlspecialchars($e->getMessage()));
+        }
         return false;
     }
 }
