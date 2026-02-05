@@ -18,7 +18,12 @@
   {% comment %} Получаване на данни за продукта {% endcomment %}
   {% assign product_id = product.id | default: '' %}
   {% assign product_title = product.title | default: '' %}
-  {% assign product_price = product.selected_or_first_available_variant.price | default: product.price | default: 0 %}
+  {% comment %} Цената в Shopify е в стотинки, затова разделяме на 100 {% endcomment %}
+  {% assign product_price_cents = product.selected_or_first_available_variant.price
+    | default: product.price
+    | default: 0
+  %}
+  {% assign product_price = product_price_cents | divided_by: 100.0 %}
   {% assign product_variant_id = product.selected_or_first_available_variant.id | default: '' %}
   {% assign shop_domain = shop.domain | default: '' %}
   {% assign shop_permanent_domain = shop.permanent_domain | default: '' %}
