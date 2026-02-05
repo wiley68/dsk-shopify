@@ -8,6 +8,23 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
+// Проверка за HTTPS - блокирай HTTP заявки
+$isHttps = false;
+if (isset($_SERVER['HTTPS']) && strtolower($_SERVER['HTTPS']) !== 'off') {
+    $isHttps = true;
+} elseif (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && strtolower($_SERVER['HTTP_X_FORWARDED_PROTO']) === 'https') {
+    // За load balancer/proxy който предава HTTPS чрез header
+    $isHttps = true;
+} elseif (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443) {
+    // Алтернативна проверка по порт
+    $isHttps = true;
+}
+
+if (!$isHttps) {
+    http_response_code(403);
+    exit('HTTPS required');
+}
+
 /**
  * Проверява дали User-Agent е известен бот/сканер
  * @return bool true ако е бот, false ако е легитимен браузър
