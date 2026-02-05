@@ -188,11 +188,27 @@ $product_title_escaped = htmlspecialchars($product_title);
 $product_price = $_POST['product_price'] ?? '';
 $product_variant_id = $_POST['product_variant_id'] ?? '';
 $shop_domain = $_POST['shop_domain'] ?? '';
+$shop_permanent_domain = $_POST['shop_permanent_domain'] ?? '';
 $cid = $_POST['cid'] ?? '';
 
-// Валидация
-if (empty($cid) || empty($product_id)) {
-    die('Липсват задължителни данни');
+// Валидация на задължителни полета - блокирай ако липсват
+$requiredFields = [
+    'cid' => $cid,
+    'shop_domain' => $shop_domain,
+    'shop_permanent_domain' => $shop_permanent_domain,
+    'product_id' => $product_id
+];
+
+$missingFields = [];
+foreach ($requiredFields as $field => $value) {
+    if (empty($value)) {
+        $missingFields[] = $field;
+    }
+}
+
+if (!empty($missingFields)) {
+    http_response_code(400);
+    exit('Missing required fields: ' . implode(', ', $missingFields));
 }
 
 // Твоята логика за стъпков процес...

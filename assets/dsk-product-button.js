@@ -40,6 +40,7 @@
       product_price: container.dataset.productPrice || '',
       product_variant_id: container.dataset.productVariantId || '',
       shop_domain: container.dataset.shopDomain || window.location.hostname,
+      shop_permanent_domain: container.dataset.shopPermanentDomain || '',
       cid: container.dataset.cid || ''
     };
 

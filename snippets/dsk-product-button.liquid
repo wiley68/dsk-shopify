@@ -17,10 +17,11 @@
   {% assign product_title = product.title | default: '' %}
   {% assign product_price = product.selected_or_first_available_variant.price | default: product.price | default: 0 %}
   {% assign product_variant_id = product.selected_or_first_available_variant.id | default: '' %}
-  {% assign shop_domain = shop.domain | default: shop.permanent_domain | default: '' %}
+  {% assign shop_domain = shop.domain | default: '' %}
+  {% assign shop_permanent_domain = shop.permanent_domain | default: '' %}
 
   {{ 'dsk-product-button.css' | asset_url | stylesheet_tag }}
-  {{ 'dsk-product-button.js' | asset_url | script_tag }}
+  <script src="{{ 'dsk-product-button.js' | asset_url }}" defer></script>
 
   <div
     id="dskapi-product-button-container"
@@ -30,6 +31,7 @@
     data-product-price="{{ product_price }}"
     data-product-variant-id="{{ product_variant_id }}"
     data-shop-domain="{{ shop_domain }}"
+    data-shop-permanent-domain="{{ shop_permanent_domain }}"
     data-cid="{{ settings.dskapi_cid }}"
   >
     <button type="button" id="btn_dskapi" class="button button-secondary">
@@ -38,6 +40,8 @@
         <img
           src="{{ 'dsk-logo-color.svg' | asset_url }}"
           alt="Банка ДСК покупки на Кредит"
+          width="120"
+          height="20"
         >
       </span>
     </button>
