@@ -25,6 +25,23 @@ if (!$isHttps) {
     exit('HTTPS required');
 }
 
+// Проверка за Content-Type - приемай само валидни форми
+$contentType = $_SERVER['CONTENT_TYPE'] ?? '';
+$isValidContentType = false;
+if (!empty($contentType)) {
+    $contentTypeLower = strtolower($contentType);
+    // Проверка за application/x-www-form-urlencoded или multipart/form-data
+    if (strpos($contentTypeLower, 'application/x-www-form-urlencoded') !== false ||
+        strpos($contentTypeLower, 'multipart/form-data') !== false) {
+        $isValidContentType = true;
+    }
+}
+
+if (!$isValidContentType) {
+    http_response_code(415);
+    exit('Unsupported Media Type');
+}
+
 // Проверка за Origin/Referer headers - задължителни за сигурност
 // Повечето ботове не изпращат тези headers правилно
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
