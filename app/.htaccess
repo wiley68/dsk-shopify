@@ -2,6 +2,17 @@
 # Този файл презаписва Content-Security-Policy от root директорията
 # за да позволи вграждане в iframe от Shopify магазини
 
+# Разреши само index.php и само POST заявки
+RewriteEngine On
+# Блокирай достъп до всичко освен index.php
+RewriteRule !^index\.php$ - [F]
+# Блокирай не-POST заявки към index.php
+RewriteCond %{REQUEST_METHOD} !POST
+RewriteRule ^index\.php$ - [F]
+
+# Лимит на размера на заявката (~64KB)
+LimitRequestBody 65536
+
 <IfModule mod_headers.c>
     # Премахване на стария CSP header (ако е зададен с Header set)
     Header unset Content-Security-Policy
