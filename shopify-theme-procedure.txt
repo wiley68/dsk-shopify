@@ -65,3 +65,11 @@ A) Push към конкретна unpublished тема (за да не се съ
 
 B) Добра практика
    - Дръж проекта в git repo (branch-ове по клиенти/магазини или по feature-и)
+
+############### server #######################################################
+За най-бърза проверка инсталирай MaxMind GeoLite2:
+Регистрирай се на https://www.maxmind.com/en/geolite2/signup
+Изтегли GeoLite2-Country.mmdb
+Инсталирай PHP библиотеката: composer require maxmind-db/reader
+Постави GeoLite2-Country.mmdb в /app/
+---

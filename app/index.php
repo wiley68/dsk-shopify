@@ -60,8 +60,16 @@ function rl_check(string $key, int $limit, int $windowSeconds = 60): bool
 }
 
 // Rate limit преди всякаква по-тежка логика (и преди DB)
-$ip = $_SERVER['REMOTE_ADDR'] ?? 'unknown';
+require_once __DIR__ . '/geoip.php';
+
+$ip = get_client_ip();
 $cidForLimit = $_POST['cid'] ?? 'no-cid';
+
+// GeoIP проверка - блокирай всичко извън България
+if (!is_ip_from_bulgaria($ip)) {
+    http_response_code(403);
+    exit('Access denied');
+}
 
 // Примерни лимити: 30 req/мин/IP и 120 req/мин/CID
 $ipOk = rl_check('ip_' . $ip, 30, 60);

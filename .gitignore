@@ -13,3 +13,4 @@
 !app/
 !app/.htaccess
 !app/index.php
+!app/geoip.php
