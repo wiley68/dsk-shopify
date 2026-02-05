@@ -1,0 +1,31 @@
+/* DSK Credit API – бутон за покупка на изплащане */
+
+#dskapi-product-button-container {
+  display: flex;
+}
+
+#dskapi-product-button-container #btn_dskapi {
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+#dskapi-product-button-container .dskapi-btn-text {
+  flex: 1;
+  text-align: right;
+  padding-right: 4px;
+}
+
+#dskapi-product-button-container .dskapi-btn-logo {
+  flex: 1;
+  display: flex;
+  justify-content: flex-start;
+  padding-left: 4px;
+}
+
+#dskapi-product-button-container .dskapi-btn-logo img {
+  width: auto;
+  height: 1.25em;
+  max-width: none;
+  object-fit: contain;
+}

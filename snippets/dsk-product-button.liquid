@@ -12,7 +12,16 @@
   {% assign gap = settings.dskapi_gap | default: 0 %}
   {% if gap < 0 %}{% assign gap = 0 %}{% endif %}
 
+  {{ 'dsk-product-button.css' | asset_url | stylesheet_tag }}
   <div id="dskapi-product-button-container" style="margin-top: {{ gap }}px;">
-    <button type="button" id="btn_dskapi" class="button button-secondary">Купи на изплащане</button>
+    <button type="button" id="btn_dskapi" class="button button-secondary">
+      <span class="dskapi-btn-text">Купи на кредит от</span>
+      <span class="dskapi-btn-logo">
+        <img
+          src="{{ 'dsk-logo-color.svg' | asset_url }}"
+          alt="Банка ДСК покупки на Кредит"
+        >
+      </span>
+    </button>
   </div>
 {% endif %}
