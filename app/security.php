@@ -119,6 +119,15 @@ function perform_security_checks(): void
         http_response_code(400);
         exit('Missing required fields: ' . implode(', ', $missingFields));
     }
+
+    // 10. Проверка в базата данни - валидиране на CID и домейн
+    require_once __DIR__ . '/db.php';
+    $shopValidation = validate_shop_in_db($cid, $shop_domain, $shop_permanent_domain);
+    
+    if ($shopValidation === false) {
+        http_response_code(403);
+        exit('Invalid shop configuration');
+    }
 }
 
 /**
