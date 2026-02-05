@@ -5,7 +5,10 @@
 
 {% assign show_dskapi = false %}
 {% if settings.dskapi_status and settings.dskapi_cid != blank %}
-  {% assign show_dskapi = true %}
+  {% comment %} Проверка за валута - показваме бутона само ако магазинът работи с EUR {% endcomment %}
+  {% if shop.currency == 'EUR' %}
+    {% assign show_dskapi = true %}
+  {% endif %}
 {% endif %}
 
 {% if show_dskapi %}
