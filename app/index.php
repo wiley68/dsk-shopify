@@ -25,6 +25,16 @@ if (!$isHttps) {
     exit('HTTPS required');
 }
 
+// Проверка за Origin/Referer headers - задължителни за сигурност
+// Повечето ботове не изпращат тези headers правилно
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+$referer = $_SERVER['HTTP_REFERER'] ?? '';
+
+if (empty($origin) && empty($referer)) {
+    http_response_code(403);
+    exit('Origin or Referer header required');
+}
+
 /**
  * Проверява дали User-Agent е известен бот/сканер
  * @return bool true ако е бот, false ако е легитимен браузър
