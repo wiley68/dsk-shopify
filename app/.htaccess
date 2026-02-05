@@ -4,6 +4,14 @@
 
 # Разреши само index.php и само POST заявки
 RewriteEngine On
+
+# Блокирай известни ботове/сканери по User-Agent
+RewriteCond %{HTTP_USER_AGENT} (bot|crawler|spider|scraper|curl|wget|python|java|perl|ruby|go-http|http|scrapy|mechanize|headless|phantom|selenium|webdriver|postman|insomnia|apache-httpclient|okhttp|libwww-perl|masscan|nmap|nikto|sqlmap|nikto|dirbuster|gobuster|burp|zap|nessus|openvas|acunetix|netsparker|appscan|qualys|rapid7|metasploit|havij|pangolin|sqlsus|sqlninja|w3af|skipfish|wapiti|arachni|skipfish|skipfish|nikto|nikto|nikto) [NC,OR]
+RewriteCond %{HTTP_USER_AGENT} ^$ [OR]
+RewriteCond %{HTTP_USER_AGENT} ^- [OR]
+RewriteCond %{HTTP_USER_AGENT} (^Mozilla$|^$|^curl|^Wget|^python|^Java|^Go-http|^HTTP|^libwww|^Lynx|^Links|^w3m) [NC]
+RewriteRule .* - [F,L]
+
 # Блокирай достъп до всичко освен index.php
 RewriteRule !^index\.php$ - [F]
 # Блокирай не-POST заявки към index.php

@@ -9,6 +9,61 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 /**
+ * Проверява дали User-Agent е известен бот/сканер
+ * @return bool true ако е бот, false ако е легитимен браузър
+ */
+function is_bot_user_agent(): bool
+{
+    $ua = strtolower($_SERVER['HTTP_USER_AGENT'] ?? '');
+    
+    // Празен User-Agent е подозрителен
+    if (empty($ua)) {
+        return true;
+    }
+    
+    // Списък с известни ботове/сканери
+    $botPatterns = [
+        'bot', 'crawler', 'spider', 'scraper',
+        'curl', 'wget', 'python', 'java', 'perl', 'ruby',
+        'go-http', 'http', 'scrapy', 'mechanize',
+        'headless', 'phantom', 'selenium', 'webdriver',
+        'postman', 'insomnia', 'apache-httpclient', 'okhttp',
+        'libwww-perl', 'masscan', 'nmap', 'nikto',
+        'sqlmap', 'dirbuster', 'gobuster', 'burp', 'zap',
+        'nessus', 'openvas', 'acunetix', 'netsparker',
+        'appscan', 'qualys', 'rapid7', 'metasploit',
+        'havij', 'pangolin', 'sqlsus', 'sqlninja',
+        'w3af', 'skipfish', 'wapiti', 'arachni',
+        'lynx', 'links', 'w3m'
+    ];
+    
+    foreach ($botPatterns as $pattern) {
+        if (strpos($ua, $pattern) !== false) {
+            return true;
+        }
+    }
+    
+    // Проверка за валидни браузъри (Mozilla, Chrome, Safari, Edge, Firefox)
+    $validBrowsers = ['mozilla', 'chrome', 'safari', 'edge', 'firefox', 'opera', 'msie'];
+    $hasValidBrowser = false;
+    foreach ($validBrowsers as $browser) {
+        if (strpos($ua, $browser) !== false) {
+            $hasValidBrowser = true;
+            break;
+        }
+    }
+    
+    // Ако няма признаци за валиден браузър, считаме за бот
+    return !$hasValidBrowser;
+}
+
+// Блокиране на ботове/сканери (резервна проверка в PHP)
+if (is_bot_user_agent()) {
+    http_response_code(403);
+    exit('Access denied');
+}
+
+/**
  * Файлов rate limit – брои заявки по ключ (напр. IP, CID) в рамките на прозорец
  * @return bool true ако е под лимита, false ако е над
  */
