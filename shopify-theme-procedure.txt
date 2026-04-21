@@ -1,17 +1,17 @@
-Работеща процедура за промени по Shopify тема (пример: esjmyi-8f.myshopify.com)
+Работеща процедура за промени по Shopify тема (пример: test-avalon.myshopify.com)
 
 1) Папка за проекта
-   - Създай папка за магазина (напр. esjmyi-8f/)
+   - Създай папка за магазина (напр. test-avalon/)
    - Влез в папката
 
 2) Login (админ акаунт или Partner access с Themes права)
    shopify auth login
 
 3) Намиране на Theme ID
-   shopify theme list -s esjmyi-8f.myshopify.com
+   shopify theme list -s test-avalon.myshopify.com
 
 4) Изтегляне на темата локално (pull)
-   shopify theme pull -s esjmyi-8f.myshopify.com --theme <THEME_ID>
+   shopify theme pull -s test-avalon.myshopify.com --theme <THEME_ID>
 
 5) Локални промени
    - Добави/обнови Theme settings (config/settings_schema.json)
@@ -43,7 +43,7 @@
    - Добави snippet-а, snippets/dsk-product-button.liquid
 
 6) Dev preview (hot reload без push)
-   shopify theme dev -s esjmyi-8f.myshopify.com
+   shopify theme dev -s test-avalon.myshopify.com
    - Отвори URL-то, което CLI показва (обикновено localhost / 127.0.0.1)
    - Правиш промени и ги виждаш веднага
    - Правим промени в настройките от Theme settings/Leasing
