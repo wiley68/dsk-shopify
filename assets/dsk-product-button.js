@@ -180,7 +180,6 @@
   }
 
   window.addEventListener("message", function (event) {
-    console.log(event.data, event.origin);
     var data = event.data || {};
     if (
       !data ||
