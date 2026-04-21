@@ -8,6 +8,7 @@
   // Конфигурация
   const ALLOWED_ORIGIN = "https://dsk.avalon-bg.eu";
   const DSK_API_URL = `${ALLOWED_ORIGIN}/app/index.php`;
+  const FIXED_IFRAME_HEIGHT = 800;
 
   // Инициализация при зареждане на страницата
   document.addEventListener("DOMContentLoaded", function () {
@@ -53,6 +54,9 @@
     if (!iframeContainer) {
       console.error("DSK API: iframe container not found");
       return;
+    }
+    if (iframeContainer instanceof HTMLElement) {
+      iframeContainer.style.height = FIXED_IFRAME_HEIGHT + "px";
     }
 
     iframeContainer.innerHTML =
@@ -181,17 +185,16 @@
 
   window.addEventListener("message", function (event) {
     var data = event.data || {};
-    if (
-      !data ||
-      data.source !== "dskapi-iframe" ||
-      data.type !== "DSKAPI_CLOSE_MODAL"
-    ) {
+    if (!data || data.source !== "dskapi-iframe") {
       return;
     }
-    if (!ALLOWED_ORIGIN.includes(event.origin)) {
+    if (event.origin !== ALLOWED_ORIGIN) {
       return;
     }
-    closeModal();
+    if (data.type === "DSKAPI_CLOSE_MODAL") {
+      closeModal();
+      return;
+    }
   });
 
   // Експорт на функциите за глобална употреба (ако е необходимо)
