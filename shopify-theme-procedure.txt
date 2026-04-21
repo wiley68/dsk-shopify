@@ -51,7 +51,7 @@
    - Custom Liquid: {% render 'dsk-product-button', product: product %}
 
 7) Push като unpublished (safe deploy)
-   shopify theme push -s esjmyi-8f.myshopify.com --unpublished
+   shopify theme push -s test-avalon.myshopify.com --unpublished
    - В Admin: Online Store -> Themes -> Theme library ще видиш новата unpublished тема
    - Preview / Customize
    - Publish когато си готов
@@ -60,8 +60,8 @@
 
 По избор (удобни допълнения)
 A) Push към конкретна unpublished тема (за да не се създава нова всеки път)
-   1) shopify theme list -s esjmyi-8f.myshopify.com
-   2) shopify theme push -s esjmyi-8f.myshopify.com --theme <UNPUBLISHED_THEME_ID>
+   1) shopify theme list -s test-avalon.myshopify.com
+   2) shopify theme push -s test-avalon.myshopify.com --theme <UNPUBLISHED_THEME_ID>
 
 B) Добра практика
    - Дръж проекта в git repo (branch-ове по клиенти/магазини или по feature-и)
