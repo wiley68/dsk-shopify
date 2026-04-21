@@ -6,7 +6,8 @@
   "use strict";
 
   // Конфигурация
-  const DSK_API_URL = "https://dsk.avalon-bg.eu/app/index.php";
+  const ALLOWED_ORIGIN = "https://dsk.avalon-bg.eu";
+  const DSK_API_URL = `${ALLOWED_ORIGIN}/app/index.php`;
 
   // Инициализация при зареждане на страницата
   document.addEventListener("DOMContentLoaded", function () {
@@ -177,6 +178,22 @@
       document.body.style.overflow = "";
     }
   }
+
+  window.addEventListener("message", function (event) {
+    console.log(event.data, event.origin);
+    var data = event.data || {};
+    if (
+      !data ||
+      data.source !== "dskapi-iframe" ||
+      data.type !== "DSKAPI_CLOSE_MODAL"
+    ) {
+      return;
+    }
+    if (!ALLOWED_ORIGIN.includes(event.origin)) {
+      return;
+    }
+    closeModal();
+  });
 
   // Експорт на функциите за глобална употреба (ако е необходимо)
   if (typeof window !== "undefined") {
