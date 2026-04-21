@@ -111,8 +111,8 @@
 
     modal.innerHTML = `
       <div class="dskapi-modal-overlay"></div>
+      <button class="dskapi-modal-close" aria-label="Затвори">&times;</button>
       <div class="dskapi-modal-content">
-        <button class="dskapi-modal-close" aria-label="Затвори">&times;</button>
         <div id="dskapi-iframe-container" class="dskapi-iframe-container">
           <div class="dskapi-loading">Зареждане...</div>
         </div>
