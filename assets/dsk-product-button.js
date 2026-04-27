@@ -10,6 +10,95 @@
   const DSK_API_URL = `${ALLOWED_ORIGIN}/app/index.php`;
   const FIXED_IFRAME_HEIGHT = 800;
   const MAX_PRODUCT_QUANTITY = 9999;
+  const VARIANT_PRICE_CACHE_DURATION_MS = 5 * 60 * 1000;
+  /** @type {Map<string, { price: number, timestamp: number }>} */
+  const variantPriceCache = new Map();
+
+  /**
+   * Връща избрания variant ID от продуктова форма (ако има), иначе fallback от data-атрибут.
+   * @param {HTMLElement} container
+   * @returns {string}
+   */
+  function readSelectedVariantId(container) {
+    var fallbackVariantId = container.dataset.productVariantId || "";
+    var form =
+      document.querySelector('form[action*="/cart/add"]') ||
+      document.querySelector("form.product-form") ||
+      document.querySelector('[id^="product-form"]');
+    var variantInput =
+      (form && form.querySelector('input[name="id"]')) ||
+      document.querySelector('input[name="id"]');
+    if (variantInput instanceof HTMLInputElement && variantInput.value !== "") {
+      return String(variantInput.value).trim();
+    }
+    var variantSelect =
+      (form && form.querySelector('select[name="id"]')) ||
+      document.querySelector('select[name="id"]');
+    if (
+      variantSelect instanceof HTMLSelectElement &&
+      variantSelect.value !== ""
+    ) {
+      return String(variantSelect.value).trim();
+    }
+    return fallbackVariantId;
+  }
+
+  /**
+   * Извлича цена на variant от Shopify AJAX API (в центове).
+   * @param {string} variantId
+   * @returns {Promise<number>}
+   */
+  function getVariantPriceFromAPI(variantId) {
+    if (!variantId) return Promise.resolve(0);
+    var cached = variantPriceCache.get(variantId);
+    var now = Date.now();
+    if (cached && now - cached.timestamp < VARIANT_PRICE_CACHE_DURATION_MS) {
+      return Promise.resolve(cached.price);
+    }
+
+    var shopify =
+      typeof window !== "undefined"
+        ? /** @type {{ routes?: { root?: string } } | undefined } */ (
+            window["Shopify"]
+          )
+        : undefined;
+    var shopifyRoot =
+      shopify && shopify.routes && shopify.routes.root
+        ? shopify.routes.root
+        : "/";
+    var variantUrl =
+      shopifyRoot + "variants/" + encodeURIComponent(variantId) + ".js";
+
+    return fetch(variantUrl)
+      .then(function (res) {
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        return res.json();
+      })
+      .then(function (variantData) {
+        var price =
+          variantData && typeof variantData.price === "number"
+            ? variantData.price
+            : 0;
+        if (price > 0) {
+          variantPriceCache.set(variantId, { price: price, timestamp: now });
+          return price;
+        }
+        return 0;
+      })
+      .catch(function () {
+        return 0;
+      });
+  }
+
+  /**
+   * Конвертира цена в центове към десетичен формат (напр. 1234 -> "12.34").
+   * @param {number} cents
+   * @returns {string}
+   */
+  function centsToDecimalString(cents) {
+    if (!Number.isFinite(cents) || cents <= 0) return "";
+    return (cents / 100).toFixed(2);
+  }
 
   /**
    * Чете избраното количество от формата за добавяне в количката (ако има такава).
@@ -86,11 +175,12 @@
     );
     if (!container) return;
 
+    var selectedVariantId = readSelectedVariantId(container);
     const productData = {
       product_id: container.dataset.productId || "",
       product_title: container.dataset.productTitle || "",
       product_price: container.dataset.productPrice || "",
-      product_variant_id: container.dataset.productVariantId || "",
+      product_variant_id: selectedVariantId,
       product_quantity: readProductQuantity(container),
       shop_domain: container.dataset.shopDomain || window.location.hostname,
       shop_permanent_domain: container.dataset.shopPermanentDomain || "",
@@ -136,21 +226,30 @@
 
     // Изчакване малко за да се зареди iframe-ът в DOM
     setTimeout(function () {
-      // Създаване на скрита форма за POST изпращане
-      const form = createPostForm(productData);
+      getVariantPriceFromAPI(selectedVariantId).then(
+        function (variantPriceCents) {
+          var variantPriceDecimal = centsToDecimalString(variantPriceCents);
+          if (variantPriceDecimal !== "") {
+            productData.product_price = variantPriceDecimal;
+          }
 
-      // Добавяне на формата в body (не в контейнера)
-      document.body.appendChild(form);
+          // Създаване на скрита форма за POST изпращане
+          const form = createPostForm(productData);
 
-      // Изпращане на формата (това ще зареди iframe-а с POST данни)
-      form.submit();
+          // Добавяне на формата в body (не в контейнера)
+          document.body.appendChild(form);
 
-      // Премахване на формата след изпращане
-      setTimeout(function () {
-        if (form.parentNode) {
-          form.parentNode.removeChild(form);
-        }
-      }, 100);
+          // Изпращане на формата (това ще зареди iframe-а с POST данни)
+          form.submit();
+
+          // Премахване на формата след изпращане
+          setTimeout(function () {
+            if (form.parentNode) {
+              form.parentNode.removeChild(form);
+            }
+          }, 100);
+        },
+      );
     }, 100);
   }
 
