@@ -9,6 +9,54 @@
   const ALLOWED_ORIGIN = "https://dsk.avalon-bg.eu";
   const DSK_API_URL = `${ALLOWED_ORIGIN}/app/index.php`;
   const FIXED_IFRAME_HEIGHT = 800;
+  const MAX_PRODUCT_QUANTITY = 9999;
+
+  /**
+   * Чете избраното количество от формата за добавяне в количката (ако има такава).
+   * Поддържа типични Shopify теми; при липса на поле връща data-product-quantity-default или 1.
+   * @param {HTMLElement} container
+   * @returns {string}
+   */
+  function readProductQuantity(container) {
+    var defaultRaw =
+      container.dataset.productQuantityDefault ||
+      container.dataset.productQuantity ||
+      "1";
+    var defaultQty = parseInt(String(defaultRaw).trim(), 10);
+    if (!Number.isFinite(defaultQty) || defaultQty < 1) {
+      defaultQty = 1;
+    }
+
+    var form =
+      document.querySelector('form[action*="/cart/add"]') ||
+      document.querySelector("form.product-form") ||
+      document.querySelector('[id^="product-form"]');
+    var input = form
+      ? form.querySelector('input[name="quantity"]:not([type="hidden"])')
+      : null;
+    if (!input) {
+      input = document.querySelector(
+        'input[name="quantity"]:not([type="hidden"])',
+      );
+    }
+    var select =
+      (form && form.querySelector('select[name="quantity"]')) ||
+      document.querySelector('select[name="quantity"]');
+    var rawValue = "";
+    if (input instanceof HTMLInputElement && input.value !== "") {
+      rawValue = String(input.value).trim();
+    } else if (select instanceof HTMLSelectElement && select.value !== "") {
+      rawValue = String(select.value).trim();
+    }
+    if (rawValue === "") {
+      return String(Math.min(defaultQty, MAX_PRODUCT_QUANTITY));
+    }
+    var parsed = parseInt(rawValue, 10);
+    if (!Number.isFinite(parsed) || parsed < 1) {
+      return String(Math.min(defaultQty, MAX_PRODUCT_QUANTITY));
+    }
+    return String(Math.min(parsed, MAX_PRODUCT_QUANTITY));
+  }
 
   // Инициализация при зареждане на страницата
   document.addEventListener("DOMContentLoaded", function () {
@@ -43,6 +91,7 @@
       product_title: container.dataset.productTitle || "",
       product_price: container.dataset.productPrice || "",
       product_variant_id: container.dataset.productVariantId || "",
+      product_quantity: readProductQuantity(container),
       shop_domain: container.dataset.shopDomain || window.location.hostname,
       shop_permanent_domain: container.dataset.shopPermanentDomain || "",
       cid: container.dataset.cid || "",
