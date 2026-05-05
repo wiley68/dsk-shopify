@@ -294,6 +294,7 @@
     iframeContainer.innerHTML = getLoadingMarkup();
 
     // Първо създаваме и добавяме iframe-а
+    var hasSubmittedToIframe = false;
     const iframe = document.createElement("iframe");
     iframe.name = "dskapi-iframe";
     iframe.id = "dskapi-iframe";
@@ -301,8 +302,12 @@
     iframe.frameBorder = "0";
     iframe.allow = "payment";
 
-    // Премахване на loading индикатора когато iframe се зареди
+    // Премахване на loading индикатора само след реално POST зареждане.
+    // Iframe може да върне initial onload преди submit (about:blank).
     iframe.onload = function () {
+      if (!hasSubmittedToIframe) {
+        return;
+      }
       const loadingOverlay = iframeContainer.querySelector(
         ".dskapi-loading-overlay",
       );
@@ -334,6 +339,7 @@
           document.body.appendChild(form);
 
           // Изпращане на формата (това ще зареди iframe-а с POST данни)
+          hasSubmittedToIframe = true;
           form.submit();
 
           // Премахване на формата след изпращане
