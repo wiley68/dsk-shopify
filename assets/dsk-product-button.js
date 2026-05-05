@@ -11,6 +11,8 @@
   const FIXED_IFRAME_HEIGHT = 800;
   const MAX_PRODUCT_QUANTITY = 9999;
   const VARIANT_PRICE_CACHE_DURATION_MS = 5 * 60 * 1000;
+  const OUT_OF_STOCK_TEXT_PATTERN =
+    /(sold\s*out|out\s*of\s*stock|изчерпан|изчерпано|неналичен|неналична)/i;
   /** @type {Map<string, { price: number, timestamp: number }>} */
   const variantPriceCache = new Map();
 
@@ -149,14 +151,105 @@
 
   // Инициализация при зареждане на страницата
   document.addEventListener("DOMContentLoaded", function () {
+    const container = document.getElementById(
+      "dskapi-product-button-container",
+    );
     const btn = document.getElementById("btn_dskapi");
-    if (!btn) return;
+    if (!container || !(btn instanceof HTMLButtonElement)) return;
 
     btn.addEventListener("click", function (e) {
       e.preventDefault();
       openDSKModal();
     });
+
+    setupAvailabilitySync(container, btn);
   });
+
+  /**
+   * Опитва да намери основния бутон за добавяне в количката.
+   * @returns {HTMLButtonElement | HTMLInputElement | null}
+   */
+  function findPrimaryAddToCartButton() {
+    var form =
+      document.querySelector('form[action*="/cart/add"]') ||
+      document.querySelector("form.product-form") ||
+      document.querySelector('[id^="product-form"]');
+    if (!form) return null;
+    var addButton = form.querySelector(
+      'button[type="submit"], input[type="submit"]',
+    );
+    if (
+      addButton instanceof HTMLButtonElement ||
+      addButton instanceof HTMLInputElement
+    ) {
+      return addButton;
+    }
+    return null;
+  }
+
+  /**
+   * Връща true, ако Add to cart е в неактивно/неналично състояние.
+   * @param {HTMLButtonElement | HTMLInputElement | null} addButton
+   * @returns {boolean}
+   */
+  function isAddToCartUnavailable(addButton) {
+    if (!addButton) return false;
+    if (addButton.disabled) return true;
+    var ariaDisabled = addButton.getAttribute("aria-disabled");
+    if (ariaDisabled === "true") return true;
+    var label =
+      addButton instanceof HTMLInputElement
+        ? addButton.value || ""
+        : addButton.textContent || "";
+    return OUT_OF_STOCK_TEXT_PATTERN.test(label);
+  }
+
+  /**
+   * Синхронизира DSK бутона с наличността на основния бутон.
+   * @param {HTMLElement} container
+   * @param {HTMLButtonElement} dskBtn
+   */
+  function syncAvailabilityState(container, dskBtn) {
+    var addToCartBtn = findPrimaryAddToCartButton();
+    var unavailable = isAddToCartUnavailable(addToCartBtn);
+    var shouldHide = unavailable;
+
+    container.style.display = shouldHide ? "none" : "";
+    dskBtn.disabled = unavailable;
+    dskBtn.setAttribute("aria-disabled", unavailable ? "true" : "false");
+  }
+
+  /**
+   * Следи промени по продуктовата форма и синхронизира DSK бутона.
+   * @param {HTMLElement} container
+   * @param {HTMLButtonElement} dskBtn
+   */
+  function setupAvailabilitySync(container, dskBtn) {
+    syncAvailabilityState(container, dskBtn);
+
+    var form =
+      document.querySelector('form[action*="/cart/add"]') ||
+      document.querySelector("form.product-form") ||
+      document.querySelector('[id^="product-form"]');
+    if (!form) return;
+
+    var scheduleSync = function () {
+      window.setTimeout(function () {
+        syncAvailabilityState(container, dskBtn);
+      }, 0);
+    };
+
+    form.addEventListener("change", scheduleSync);
+    form.addEventListener("input", scheduleSync);
+
+    var observer = new MutationObserver(scheduleSync);
+    observer.observe(form, {
+      subtree: true,
+      childList: true,
+      attributes: true,
+      attributeFilter: ["disabled", "aria-disabled", "class", "value"],
+    });
+  }
 
   /**
    * Отваря модала с iframe и изпраща POST данни
@@ -198,8 +291,7 @@
       iframeContainer.style.height = FIXED_IFRAME_HEIGHT + "px";
     }
 
-    iframeContainer.innerHTML =
-      '<div class="dskapi-loading">Зареждане...</div>';
+    iframeContainer.innerHTML = getLoadingMarkup();
 
     // Първо създаваме и добавяме iframe-а
     const iframe = document.createElement("iframe");
@@ -211,9 +303,11 @@
 
     // Премахване на loading индикатора когато iframe се зареди
     iframe.onload = function () {
-      const loading = iframeContainer.querySelector(".dskapi-loading");
-      if (loading) {
-        loading.remove();
+      const loadingOverlay = iframeContainer.querySelector(
+        ".dskapi-loading-overlay",
+      );
+      if (loadingOverlay) {
+        loadingOverlay.remove();
       }
     };
 
@@ -263,10 +357,10 @@
 
     modal.innerHTML = `
       <div class="dskapi-modal-overlay"></div>
-      <button class="dskapi-modal-close" aria-label="Затвори">&times;</button>
       <div class="dskapi-modal-content">
+        <button class="dskapi-modal-close" aria-label="Затвори">&times;</button>
         <div id="dskapi-iframe-container" class="dskapi-iframe-container">
-          <div class="dskapi-loading">Зареждане...</div>
+          ${getLoadingMarkup()}
         </div>
       </div>
     `;
@@ -293,6 +387,19 @@
     });
 
     return modal;
+  }
+
+  /**
+   * Маркъп за loading overlay върху iframe контейнера.
+   * @returns {string}
+   */
+  function getLoadingMarkup() {
+    return `
+      <div class="dskapi-loading-overlay" role="status" aria-live="polite">
+        <div class="dskapi-loading-spinner" aria-hidden="true"></div>
+        <div class="dskapi-loading-text">Зареждане на калкулатора...</div>
+      </div>
+    `;
   }
 
   /**
