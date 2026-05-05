@@ -270,11 +270,15 @@
 
     var selectedVariantId = readSelectedVariantId(container);
     const productData = {
-      product_id: container.dataset.productId || "",
-      product_title: container.dataset.productTitle || "",
-      product_price: container.dataset.productPrice || "",
-      product_variant_id: selectedVariantId,
-      product_quantity: readProductQuantity(container),
+      products: [
+        {
+          product_id: container.dataset.productId || "",
+          product_title: container.dataset.productTitle || "",
+          product_price: container.dataset.productPrice || "",
+          product_variant_id: selectedVariantId,
+          product_quantity: readProductQuantity(container),
+        },
+      ],
       shop_domain: container.dataset.shopDomain || window.location.hostname,
       shop_permanent_domain: container.dataset.shopPermanentDomain || "",
       cid: container.dataset.cid || "",
@@ -328,8 +332,15 @@
       getVariantPriceFromAPI(selectedVariantId).then(
         function (variantPriceCents) {
           var variantPriceDecimal = centsToDecimalString(variantPriceCents);
-          if (variantPriceDecimal !== "") {
-            productData.product_price = variantPriceDecimal;
+          if (
+            variantPriceDecimal !== "" &&
+            Array.isArray(productData.products) &&
+            productData.products.length > 0
+          ) {
+            var firstProduct = productData.products[0];
+            if (firstProduct) {
+              firstProduct.product_price = variantPriceDecimal;
+            }
           }
 
           // Създаване на скрита форма за POST изпращане
@@ -410,7 +421,7 @@
 
   /**
    * Създава скрита форма за POST изпращане към iframe
-   * @param {Record<string, string>} data - Данни за продукта
+   * @param {Record<string, unknown>} data - Данни за продукта
    */
   function createPostForm(data) {
     const form = document.createElement("form");
@@ -426,7 +437,14 @@
       input.name = key;
       /** @type {any} */
       const dataObj = data;
-      input.value = String(dataObj[key] || "");
+      const rawValue = dataObj[key];
+      if (rawValue === null || rawValue === undefined) {
+        input.value = "";
+      } else if (typeof rawValue === "object") {
+        input.value = JSON.stringify(rawValue);
+      } else {
+        input.value = String(rawValue);
+      }
       form.appendChild(input);
     });
 
