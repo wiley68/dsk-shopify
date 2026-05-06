@@ -1,0 +1,45 @@
+{% comment %}
+  DSK Credit API – бутон за покупка на изплащане от страницата количка.
+  Показва се само при включен dskapi_status, попълнен dskapi_cid и EUR.
+  Изисква непразна количка.
+{% endcomment %}
+
+{% assign show_dskapi = false %}
+{% if settings.dskapi_status and settings.dskapi_cid != blank %}
+  {% if shop.currency == 'EUR' %}
+    {% assign show_dskapi = true %}
+  {% endif %}
+{% endif %}
+
+{% if show_dskapi and cart.item_count > 0 %}
+  {% assign gap = settings.dskapi_gap | default: 0 %}
+  {% if gap < 0 %}{% assign gap = 0 %}{% endif %}
+
+  {% assign shop_domain = shop.domain | default: '' %}
+  {% assign shop_permanent_domain = shop.permanent_domain | default: '' %}
+
+  {% # theme-check-disable MissingAsset %}
+  {{ 'dsk-cart-button.css' | asset_url | stylesheet_tag }}
+  <script src="{{ 'dsk-cart-button.js' | asset_url }}" defer></script>
+  {% # theme-check-enable MissingAsset %}
+
+  <div
+    id="dskapi-cart-button-container"
+    style="margin-top: {{ gap }}px;"
+    data-shop-domain="{{ shop_domain }}"
+    data-shop-permanent-domain="{{ shop_permanent_domain }}"
+    data-cid="{{ settings.dskapi_cid }}"
+  >
+    <button type="button" id="btn_dskapi_cart" class="button button-secondary">
+      <span class="dskapi-btn-text">Купи на кредит от</span>
+      <span class="dskapi-btn-logo">
+        <img
+          src="{{ 'dsk-logo-color.svg' | asset_url }}"
+          alt="Банка ДСК покупки на Кредит"
+          width="120"
+          height="20"
+        >
+      </span>
+    </button>
+  </div>
+{% endif %}

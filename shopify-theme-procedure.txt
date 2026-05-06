@@ -49,6 +49,8 @@
    - Правим промени в настройките от Theme settings/Leasing
    - Добавяме блок там къде искаме (продуктова страница). Използваме Custom Liquid
    - Custom Liquid: {% render 'dsk-product-button', product: product %}
+   - Добавяме блок там къде искаме (страница количка). Използваме Custom Liquid
+   - Custom Liquid: {% render 'dsk-cart-button' %}
 
 7) Push като unpublished (safe deploy)
    shopify theme push -s test-avalon.myshopify.com --unpublished

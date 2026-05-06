@@ -1,0 +1,8 @@
+# Theme Check: root на темата; количката ще включва снипета с {% render %} — дотогава игнорираме OrphanedSnippet за този файл.
+root: .
+
+extends: theme-check:recommended
+
+OrphanedSnippet:
+  ignore:
+    - snippets/dsk-cart-button.liquid

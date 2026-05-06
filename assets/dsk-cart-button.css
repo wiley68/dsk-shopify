@@ -1,0 +1,172 @@
+/* DSK Credit API – бутон за покупка на изплащане (страница количка) */
+
+#dskapi-cart-button-container {
+  display: flex;
+}
+
+#dskapi-cart-button-container #btn_dskapi_cart {
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+#dskapi-cart-button-container .dskapi-btn-text {
+  flex: 1;
+  text-align: right;
+  padding-right: 4px;
+}
+
+#dskapi-cart-button-container .dskapi-btn-logo {
+  flex: 1;
+  display: flex;
+  justify-content: flex-start;
+  padding-left: 4px;
+}
+
+#dskapi-cart-button-container .dskapi-btn-logo img {
+  width: auto;
+  height: 1.25em;
+  max-width: none;
+  object-fit: contain;
+}
+
+/* Модал (същата визия като продуктовия снипет) */
+.dskapi-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+}
+
+.dskapi-modal.dskapi-modal-active {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dskapi-modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(2px);
+}
+
+.dskapi-modal-content {
+  position: relative;
+  width: 90vw;
+  max-width: 800px;
+  max-height: 90vh;
+  background: #fff;
+  border-radius: 14.5px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+}
+
+.dskapi-modal-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  font-size: 24px;
+  line-height: 1;
+  cursor: pointer;
+  z-index: 10002;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #333;
+  transition: background-color 0.2s;
+}
+
+.dskapi-modal-close:hover {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.dskapi-iframe-container {
+  position: relative;
+  width: 100%;
+  height: 800px;
+  min-height: 800px;
+  max-height: 800px;
+  border-radius: 0;
+  overflow: hidden;
+}
+
+.dskapi-iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: none;
+  position: relative;
+  z-index: 1;
+}
+
+.dskapi-loading-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: #fff;
+  color: #4a4a4a;
+}
+
+.dskapi-loading-spinner {
+  width: 34px;
+  height: 34px;
+  border: 3px solid #e0e0e0;
+  border-top-color: #1f5aa6;
+  border-radius: 50%;
+  animation: dskapi-spin 0.8s linear infinite;
+}
+
+.dskapi-loading-text {
+  font-size: 15px;
+  line-height: 1.4;
+  text-align: center;
+  padding: 0 16px;
+}
+
+@keyframes dskapi-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 768px) {
+  .dskapi-modal-content {
+    width: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    border-radius: 0;
+  }
+
+  .dskapi-iframe-container {
+    height: 100%;
+    min-height: 100%;
+    max-height: 100vh;
+    border-radius: 0;
+  }
+
+  .dskapi-modal-close {
+    top: 8px;
+    right: 8px;
+  }
+}

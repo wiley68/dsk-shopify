@@ -3,6 +3,7 @@
 
 # Допускай само тези файлове
 !.gitignore
+!.theme-check.yml
 !shopify-theme-procedure.txt
 !snippets/
 !snippets/dsk-product-button.liquid
@@ -10,6 +11,9 @@
 !assets/dsk-logo-color.svg
 !assets/dsk-product-button.css
 !assets/dsk-product-button.js
+!snippets/dsk-cart-button.liquid
+!assets/dsk-cart-button.css
+!assets/dsk-cart-button.js
 !app/
 !app/.htaccess
 !app/index.php
