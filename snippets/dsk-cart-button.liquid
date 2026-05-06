@@ -12,13 +12,21 @@
 {% endif %}
 
 {% if show_dskapi and cart.item_count > 0 %}
-  {% assign gap = settings.dskapi_gap | default: 0 %}
-  {% if gap < 0 %}{% assign gap = 0 %}{% endif %}
-
   {% assign shop_domain = shop.domain | default: '' %}
   {% assign shop_permanent_domain = shop.permanent_domain | default: '' %}
 
-  <div class="dskapi-slot dskapi-slot--cart">
+  {% assign dsk_btn_text = settings.dskapi_btn_text | strip %}
+  {% if dsk_btn_text == blank %}
+    {% assign dsk_btn_text = 'Купи на кредит от' %}
+  {% endif %}
+  {% assign dsk_max_w = settings.dskapi_btn_max_width | default: 570 %}
+  {% assign dsk_btn_h = settings.dskapi_btn_height | default: 52 %}
+  {% assign dsk_btn_r = settings.dskapi_btn_round | default: 14 %}
+
+  <div
+    class="dskapi-slot dskapi-slot--cart"
+    style="--dskapi-max-width: {{ dsk_max_w }}px; --dskapi-btn-height: {{ dsk_btn_h }}px; --dskapi-btn-radius: {{ dsk_btn_r }}px;"
+  >
     {% # theme-check-disable MissingAsset %}
     {{ 'dsk-cart-button.css' | asset_url | stylesheet_tag }}
     <script src="{{ 'dsk-cart-button.js' | asset_url }}" defer></script>
@@ -26,13 +34,12 @@
 
     <div
       id="dskapi-cart-button-container"
-      style="margin-top: {{ gap }}px;"
       data-shop-domain="{{ shop_domain }}"
       data-shop-permanent-domain="{{ shop_permanent_domain }}"
       data-cid="{{ settings.dskapi_cid }}"
     >
       <button type="button" id="btn_dskapi_cart" class="dskapi-btn">
-        <span class="dskapi-btn-text">Купи на кредит от</span>
+        <span class="dskapi-btn-text">{{ dsk_btn_text | escape }}</span>
         <span class="dskapi-btn-logo">
           <img
             src="{{ 'dsk-logo-color.svg' | asset_url }}"

@@ -4,7 +4,7 @@
   box-sizing: border-box;
   display: block;
   width: 100%;
-  max-width: 570px;
+  max-width: var(--dskapi-max-width, 570px);
   min-width: 0;
 }
 
@@ -35,10 +35,11 @@
   appearance: none;
   -webkit-appearance: none;
   border: 1px solid rgba(0, 0, 0, 0.18);
-  border-radius: 4px;
+  border-radius: var(--dskapi-btn-radius, 14px);
   background-color: #fff;
   color: #1a1a1a;
-  padding: 0.75rem 1rem;
+  min-height: var(--dskapi-btn-height, 52px);
+  padding: 0.5rem 1rem;
   text-align: center;
   transition:
     background-color 0.2s ease,
