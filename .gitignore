@@ -3,6 +3,7 @@
 
 # Допускай само тези файлове
 !.gitignore
+!.shopifyignore
 !.theme-check.yml
 !shopify-theme-procedure.txt
 !snippets/
@@ -14,9 +15,3 @@
 !snippets/dsk-cart-button.liquid
 !assets/dsk-cart-button.css
 !assets/dsk-cart-button.js
-!app/
-!app/.htaccess
-!app/index.php
-!app/geoip.php
-!app/security.php
-!app/db.php

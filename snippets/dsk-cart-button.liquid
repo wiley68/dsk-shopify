@@ -11,7 +11,19 @@
   {% endif %}
 {% endif %}
 
+{% assign show_in_editor_preview = false %}
+{% if request.design_mode and cart.item_count == 0 %}
+  {% assign show_in_editor_preview = true %}
+{% endif %}
+
+{% assign should_render_dskapi = false %}
 {% if show_dskapi and cart.item_count > 0 %}
+  {% assign should_render_dskapi = true %}
+{% elsif show_dskapi and show_in_editor_preview %}
+  {% assign should_render_dskapi = true %}
+{% endif %}
+
+{% if should_render_dskapi %}
   {% assign shop_domain = shop.domain | default: '' %}
   {% assign shop_permanent_domain = shop.permanent_domain | default: '' %}
 
@@ -38,7 +50,14 @@
       data-shop-permanent-domain="{{ shop_permanent_domain }}"
       data-cid="{{ settings.dskapi_cid }}"
     >
-      <button type="button" id="btn_dskapi_cart" class="dskapi-btn">
+      <button
+        type="button"
+        id="btn_dskapi_cart"
+        class="dskapi-btn"
+        {% if cart.item_count == 0 %}
+          disabled
+        {% endif %}
+      >
         <span class="dskapi-btn-text">{{ dsk_btn_text | escape }}</span>
         <span class="dskapi-btn-logo">
           <img

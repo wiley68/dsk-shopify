@@ -1,0 +1,5 @@
+# Файлове извън стандартната структура на темата – НЕ се качват при shopify theme push.
+# Служат за git и локална работа. Виж shopify-theme-procedure.txt.
+.gitignore
+.theme-check.yml
+shopify-theme-procedure.txt
