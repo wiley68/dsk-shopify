@@ -6,3 +6,4 @@ extends: theme-check:recommended
 OrphanedSnippet:
   ignore:
     - snippets/dsk-cart-button.liquid
+    - snippets/dsk-product-button.liquid

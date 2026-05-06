@@ -1,13 +1,68 @@
 /* DSK Credit API – бутон за покупка на изплащане */
 
-#dskapi-product-button-container {
-  display: flex;
+.dskapi-slot {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  max-width: 570px;
+  min-width: 0;
 }
 
-#dskapi-product-button-container #btn_dskapi {
+.dskapi-slot--product {
+  flex: 1 1 100%;
+  align-self: stretch;
+}
+
+#dskapi-product-button-container {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+/* Тригер бутон – независим от класовете на темата */
+#dskapi-product-button-container .dskapi-btn {
+  box-sizing: border-box;
+  margin: 0;
   width: 100%;
   display: flex;
   align-items: center;
+  justify-content: center;
+  font-family: inherit;
+  font-size: 1rem;
+  line-height: 1.25;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  border-radius: 4px;
+  background-color: #fff;
+  color: #1a1a1a;
+  padding: 0.75rem 1rem;
+  text-align: center;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+#dskapi-product-button-container .dskapi-btn:hover {
+  border-color: rgba(0, 0, 0, 0.28);
+  background-color: #f5f5f5;
+}
+
+#dskapi-product-button-container .dskapi-btn:focus {
+  outline: none;
+}
+
+#dskapi-product-button-container .dskapi-btn:focus-visible {
+  outline: 2px solid #1f5aa6;
+  outline-offset: 2px;
+}
+
+#dskapi-product-button-container .dskapi-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 #dskapi-product-button-container .dskapi-btn-text {

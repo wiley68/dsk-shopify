@@ -1,13 +1,75 @@
 /* DSK Credit API – бутон за покупка на изплащане (страница количка) */
 
-#dskapi-cart-button-container {
-  display: flex;
+/*
+ * Външна обвивка (snippets/dsk-cart-button.liquid): ограничава max ширина и разтяга се
+ * във flex/grid на темата. Темите често добавят допълнителен безимен div около render –
+ * той задава „колоната“ (~270px); grid-column помага да заемем целия ред в grid количка.
+ */
+.dskapi-slot {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  max-width: 570px;
+  min-width: 0;
 }
 
-#dskapi-cart-button-container #btn_dskapi_cart {
+.dskapi-slot--cart {
+  flex: 1 1 100%;
+  align-self: stretch;
+  justify-self: stretch;
+  grid-column: 1 / -1;
+}
+
+#dskapi-cart-button-container {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+/* Тригер бутон – независим от класовете на темата */
+#dskapi-cart-button-container .dskapi-btn {
+  box-sizing: border-box;
+  margin: 0;
   width: 100%;
   display: flex;
   align-items: center;
+  justify-content: center;
+  font-family: inherit;
+  font-size: 1rem;
+  line-height: 1.25;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  border-radius: 4px;
+  background-color: #fff;
+  color: #1a1a1a;
+  padding: 0.75rem 1rem;
+  text-align: center;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+#dskapi-cart-button-container .dskapi-btn:hover {
+  border-color: rgba(0, 0, 0, 0.28);
+  background-color: #f5f5f5;
+}
+
+#dskapi-cart-button-container .dskapi-btn:focus {
+  outline: none;
+}
+
+#dskapi-cart-button-container .dskapi-btn:focus-visible {
+  outline: 2px solid #1f5aa6;
+  outline-offset: 2px;
+}
+
+#dskapi-cart-button-container .dskapi-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 #dskapi-cart-button-container .dskapi-btn-text {

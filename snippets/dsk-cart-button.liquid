@@ -18,28 +18,30 @@
   {% assign shop_domain = shop.domain | default: '' %}
   {% assign shop_permanent_domain = shop.permanent_domain | default: '' %}
 
-  {% # theme-check-disable MissingAsset %}
-  {{ 'dsk-cart-button.css' | asset_url | stylesheet_tag }}
-  <script src="{{ 'dsk-cart-button.js' | asset_url }}" defer></script>
-  {% # theme-check-enable MissingAsset %}
+  <div class="dskapi-slot dskapi-slot--cart">
+    {% # theme-check-disable MissingAsset %}
+    {{ 'dsk-cart-button.css' | asset_url | stylesheet_tag }}
+    <script src="{{ 'dsk-cart-button.js' | asset_url }}" defer></script>
+    {% # theme-check-enable MissingAsset %}
 
-  <div
-    id="dskapi-cart-button-container"
-    style="margin-top: {{ gap }}px;"
-    data-shop-domain="{{ shop_domain }}"
-    data-shop-permanent-domain="{{ shop_permanent_domain }}"
-    data-cid="{{ settings.dskapi_cid }}"
-  >
-    <button type="button" id="btn_dskapi_cart" class="button button-secondary">
-      <span class="dskapi-btn-text">Купи на кредит от</span>
-      <span class="dskapi-btn-logo">
-        <img
-          src="{{ 'dsk-logo-color.svg' | asset_url }}"
-          alt="Банка ДСК покупки на Кредит"
-          width="120"
-          height="20"
-        >
-      </span>
-    </button>
+    <div
+      id="dskapi-cart-button-container"
+      style="margin-top: {{ gap }}px;"
+      data-shop-domain="{{ shop_domain }}"
+      data-shop-permanent-domain="{{ shop_permanent_domain }}"
+      data-cid="{{ settings.dskapi_cid }}"
+    >
+      <button type="button" id="btn_dskapi_cart" class="dskapi-btn">
+        <span class="dskapi-btn-text">Купи на кредит от</span>
+        <span class="dskapi-btn-logo">
+          <img
+            src="{{ 'dsk-logo-color.svg' | asset_url }}"
+            alt="Банка ДСК покупки на Кредит"
+            width="120"
+            height="20"
+          >
+        </span>
+      </button>
+    </div>
   </div>
 {% endif %}

@@ -28,31 +28,33 @@
   {% assign shop_domain = shop.domain | default: '' %}
   {% assign shop_permanent_domain = shop.permanent_domain | default: '' %}
 
-  {{ 'dsk-product-button.css' | asset_url | stylesheet_tag }}
-  <script src="{{ 'dsk-product-button.js' | asset_url }}" defer></script>
+  <div class="dskapi-slot dskapi-slot--product">
+    {{ 'dsk-product-button.css' | asset_url | stylesheet_tag }}
+    <script src="{{ 'dsk-product-button.js' | asset_url }}" defer></script>
 
-  <div
-    id="dskapi-product-button-container"
-    style="margin-top: {{ gap }}px;"
-    data-product-id="{{ product_id }}"
-    data-product-title="{{ product_title | escape }}"
-    data-product-price="{{ product_price }}"
-    data-product-variant-id="{{ product_variant_id }}"
-    data-product-quantity-default="1"
-    data-shop-domain="{{ shop_domain }}"
-    data-shop-permanent-domain="{{ shop_permanent_domain }}"
-    data-cid="{{ settings.dskapi_cid }}"
-  >
-    <button type="button" id="btn_dskapi" class="button button-secondary">
-      <span class="dskapi-btn-text">Купи на кредит от</span>
-      <span class="dskapi-btn-logo">
-        <img
-          src="{{ 'dsk-logo-color.svg' | asset_url }}"
-          alt="Банка ДСК покупки на Кредит"
-          width="120"
-          height="20"
-        >
-      </span>
-    </button>
+    <div
+      id="dskapi-product-button-container"
+      style="margin-top: {{ gap }}px;"
+      data-product-id="{{ product_id }}"
+      data-product-title="{{ product_title | escape }}"
+      data-product-price="{{ product_price }}"
+      data-product-variant-id="{{ product_variant_id }}"
+      data-product-quantity-default="1"
+      data-shop-domain="{{ shop_domain }}"
+      data-shop-permanent-domain="{{ shop_permanent_domain }}"
+      data-cid="{{ settings.dskapi_cid }}"
+    >
+      <button type="button" id="btn_dskapi" class="dskapi-btn">
+        <span class="dskapi-btn-text">Купи на кредит от</span>
+        <span class="dskapi-btn-logo">
+          <img
+            src="{{ 'dsk-logo-color.svg' | asset_url }}"
+            alt="Банка ДСК покупки на Кредит"
+            width="120"
+            height="20"
+          >
+        </span>
+      </button>
+    </div>
   </div>
 {% endif %}
