@@ -13,8 +13,8 @@
   const VARIANT_PRICE_CACHE_DURATION_MS = 5 * 60 * 1000;
   const OUT_OF_STOCK_TEXT_PATTERN =
     /(sold\s*out|out\s*of\s*stock|изчерпан|изчерпано|неналичен|неналична)/i;
-  /** @type {Map<string, { price: number, timestamp: number }>} */
-  const variantPriceCache = new Map();
+  /** @type {Map<string, { price: number, title: string, timestamp: number }>} */
+  const variantInfoCache = new Map();
 
   /**
    * Връща избрания variant ID от продуктова форма (ако има), иначе fallback от data-атрибут.
@@ -46,16 +46,16 @@
   }
 
   /**
-   * Извлича цена на variant от Shopify AJAX API (в центове).
+   * Извлича данни за variant от Shopify AJAX API – цена (в центове) и title.
    * @param {string} variantId
-   * @returns {Promise<number>}
+   * @returns {Promise<{ price: number, title: string }>}
    */
-  function getVariantPriceFromAPI(variantId) {
-    if (!variantId) return Promise.resolve(0);
-    var cached = variantPriceCache.get(variantId);
+  function getVariantInfoFromAPI(variantId) {
+    if (!variantId) return Promise.resolve({ price: 0, title: "" });
+    var cached = variantInfoCache.get(variantId);
     var now = Date.now();
     if (cached && now - cached.timestamp < VARIANT_PRICE_CACHE_DURATION_MS) {
-      return Promise.resolve(cached.price);
+      return Promise.resolve({ price: cached.price, title: cached.title });
     }
 
     var shopify =
@@ -81,15 +81,37 @@
           variantData && typeof variantData.price === "number"
             ? variantData.price
             : 0;
-        if (price > 0) {
-          variantPriceCache.set(variantId, { price: price, timestamp: now });
-          return price;
+        var title =
+          variantData && typeof variantData.title === "string"
+            ? variantData.title
+            : "";
+        if (price > 0 || title !== "") {
+          variantInfoCache.set(variantId, {
+            price: price,
+            title: title,
+            timestamp: now,
+          });
         }
-        return 0;
+        return { price: price, title: title };
       })
       .catch(function () {
-        return 0;
+        return { price: 0, title: "" };
       });
+  }
+
+  /**
+   * Конкатенира името на продукта с името на варианта (ако не е "Default Title").
+   * Същата логика като в snippets/dsk-cart-button.js, за консистентност.
+   * @param {string} productTitle
+   * @param {string} variantTitle
+   * @returns {string}
+   */
+  function buildProductTitle(productTitle, variantTitle) {
+    var base = productTitle || "";
+    if (variantTitle && variantTitle !== "Default Title") {
+      return base ? base + " - " + variantTitle : variantTitle;
+    }
+    return base;
   }
 
   /**
@@ -329,38 +351,44 @@
 
     // Изчакване малко за да се зареди iframe-ът в DOM
     setTimeout(function () {
-      getVariantPriceFromAPI(selectedVariantId).then(
-        function (variantPriceCents) {
-          var variantPriceDecimal = centsToDecimalString(variantPriceCents);
-          if (
-            variantPriceDecimal !== "" &&
-            Array.isArray(productData.products) &&
-            productData.products.length > 0
-          ) {
-            var firstProduct = productData.products[0];
-            if (firstProduct) {
+      getVariantInfoFromAPI(selectedVariantId).then(function (variantInfo) {
+        var variantPriceDecimal = centsToDecimalString(variantInfo.price);
+        var combinedTitle = buildProductTitle(
+          container.dataset.productTitle || "",
+          variantInfo.title,
+        );
+        if (
+          Array.isArray(productData.products) &&
+          productData.products.length > 0
+        ) {
+          var firstProduct = productData.products[0];
+          if (firstProduct) {
+            if (variantPriceDecimal !== "") {
               firstProduct.product_price = variantPriceDecimal;
             }
-          }
-
-          // Създаване на скрита форма за POST изпращане
-          const form = createPostForm(productData);
-
-          // Добавяне на формата в body (не в контейнера)
-          document.body.appendChild(form);
-
-          // Изпращане на формата (това ще зареди iframe-а с POST данни)
-          hasSubmittedToIframe = true;
-          form.submit();
-
-          // Премахване на формата след изпращане
-          setTimeout(function () {
-            if (form.parentNode) {
-              form.parentNode.removeChild(form);
+            if (combinedTitle !== "") {
+              firstProduct.product_title = combinedTitle;
             }
-          }, 100);
-        },
-      );
+          }
+        }
+
+        // Създаване на скрита форма за POST изпращане
+        const form = createPostForm(productData);
+
+        // Добавяне на формата в body (не в контейнера)
+        document.body.appendChild(form);
+
+        // Изпращане на формата (това ще зареди iframe-а с POST данни)
+        hasSubmittedToIframe = true;
+        form.submit();
+
+        // Премахване на формата след изпращане
+        setTimeout(function () {
+          if (form.parentNode) {
+            form.parentNode.removeChild(form);
+          }
+        }, 100);
+      });
     }, 100);
   }
 
