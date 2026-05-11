@@ -133,9 +133,7 @@
         sum += it.line_price;
       } else {
         var q =
-          typeof it.quantity === "number" && it.quantity > 0
-            ? it.quantity
-            : 1;
+          typeof it.quantity === "number" && it.quantity > 0 ? it.quantity : 1;
         sum += getLineUnitPriceCents(it) * q;
       }
     }
@@ -154,6 +152,60 @@
       if (!res.ok) throw new Error("HTTP " + res.status);
       return res.json();
     });
+  }
+
+  /**
+   * Изчиства количката в Shopify чрез AJAX API.
+   * @returns {Promise<Record<string, unknown>>}
+   */
+  function clearShopifyCart() {
+    var root = getShopifyRoot();
+    return fetch(root + "cart/clear.js", {
+      method: "POST",
+      credentials: "same-origin",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+    }).then(function (res) {
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      return res.json();
+    });
+  }
+
+  /**
+   * Извиква се при потвърждение от DSK API iframe, че ордер е създаден.
+   * Изчиства количката и презарежда страницата (или редиректва), освен
+   * ако темата preventDefault-не custom event-а `dskapi:order-created`.
+   * @param {Record<string, unknown>} data
+   */
+  function handleOrderCreated(data) {
+    clearShopifyCart()
+      .then(function (cart) {
+        var redirectUrl =
+          data && typeof data.redirectUrl === "string" ? data.redirectUrl : "";
+        var detail = {
+          order: data && data.order ? data.order : null,
+          cart: cart,
+          redirectUrl: redirectUrl,
+        };
+
+        var orderEvent = new CustomEvent("dskapi:order-created", {
+          detail: detail,
+          cancelable: true,
+        });
+        var shouldContinue = document.dispatchEvent(orderEvent);
+        if (!shouldContinue) return;
+
+        if (redirectUrl) {
+          window.location.assign(redirectUrl);
+        } else {
+          window.location.reload();
+        }
+      })
+      .catch(function (err) {
+        console.error("DSK API (cart): неуспешно изчистване на количката", err);
+      });
   }
 
   document.addEventListener("DOMContentLoaded", function () {
@@ -327,7 +379,17 @@
     var data = event.data || {};
     if (!data || data.source !== "dskapi-iframe") return;
     if (event.origin !== ALLOWED_ORIGIN) return;
+
+    if (data.type === "DSKAPI_ORDER_CREATED") {
+      handleOrderCreated(data);
+      closeModal();
+      return;
+    }
+
     if (data.type === "DSKAPI_CLOSE_MODAL") {
+      if (data.orderCreated === true) {
+        handleOrderCreated(data);
+      }
       closeModal();
     }
   });
@@ -338,6 +400,7 @@
     win.DSKAPICart = {
       open: openDSKModal,
       close: closeModal,
+      clearCart: clearShopifyCart,
     };
   }
 })();
