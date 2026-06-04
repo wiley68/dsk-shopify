@@ -3,3 +3,5 @@
 .gitignore
 .theme-check.yml
 shopify-theme-procedure.txt
+.cursor/
+.cursor/settings.json

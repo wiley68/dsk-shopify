@@ -17,16 +17,74 @@
   const variantInfoCache = new Map();
 
   /**
+   * Намира основната продуктова форма (Horizon, Dawn и други OS 2.0 теми).
+   * @returns {HTMLFormElement | null}
+   */
+  function findProductForm() {
+    var form =
+      document.querySelector('form[action*="/cart/add"]') ||
+      document.querySelector('form[action*="cart/add"]') ||
+      document.querySelector("form.product-form") ||
+      document.querySelector('form[data-type="add-to-cart-form"]') ||
+      document.querySelector('[id^="product-form"]');
+    return form instanceof HTMLFormElement ? form : null;
+  }
+
+  /**
+   * Чете избрания вариант от Dawn script[data-selected-variant] (обновява се от VariantSelects).
+   * @returns {{ id?: number|string } | null}
+   */
+  function getSelectedVariantFromDom() {
+    var script = document.querySelector(
+      'script[type="application/json"][data-selected-variant]',
+    );
+    if (!script) return null;
+    try {
+      var data = JSON.parse(script.textContent || "{}");
+      return data && data.id ? data : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /**
+   * Проверява дали елементът е контрол за избор на вариант (radio, select или hidden id).
+   * @param {EventTarget | null} target
+   * @returns {boolean}
+   */
+  function isProductVariantOptionTarget(target) {
+    if (!(target instanceof HTMLElement)) return false;
+    if (target instanceof HTMLInputElement && target.type === "radio") {
+      var radioName = target.name || "";
+      return (
+        radioName.includes("Color") ||
+        radioName.includes("Size") ||
+        radioName.includes("variant") ||
+        radioName.includes("option")
+      );
+    }
+    if (target instanceof HTMLSelectElement) {
+      var selectName = target.name || "";
+      return (
+        selectName.indexOf("options[") === 0 || selectName.includes("option")
+      );
+    }
+    if (target instanceof HTMLInputElement && target.name === "id") {
+      return !!target.closest(
+        'form[action*="cart/add"], form[data-type="add-to-cart-form"]',
+      );
+    }
+    return false;
+  }
+
+  /**
    * Връща избрания variant ID от продуктова форма (ако има), иначе fallback от data-атрибут.
    * @param {HTMLElement} container
    * @returns {string}
    */
   function readSelectedVariantId(container) {
     var fallbackVariantId = container.dataset.productVariantId || "";
-    var form =
-      document.querySelector('form[action*="/cart/add"]') ||
-      document.querySelector("form.product-form") ||
-      document.querySelector('[id^="product-form"]');
+    var form = findProductForm();
     var variantInput =
       (form && form.querySelector('input[name="id"]')) ||
       document.querySelector('input[name="id"]');
@@ -41,6 +99,17 @@
       variantSelect.value !== ""
     ) {
       return String(variantSelect.value).trim();
+    }
+    var selectedVariant = getSelectedVariantFromDom();
+    if (selectedVariant && selectedVariant.id) {
+      return String(selectedVariant.id).trim();
+    }
+    var checkedRadio = document.querySelector(
+      'input[type="radio"][name*="variant"]:checked, input[type="radio"][name*="Color"]:checked, input[type="radio"][name*="Size"]:checked',
+    );
+    if (checkedRadio instanceof HTMLInputElement) {
+      var radioVariantId = checkedRadio.getAttribute("data-variant-id");
+      if (radioVariantId) return String(radioVariantId).trim();
     }
     return fallbackVariantId;
   }
@@ -140,10 +209,7 @@
       defaultQty = 1;
     }
 
-    var form =
-      document.querySelector('form[action*="/cart/add"]') ||
-      document.querySelector("form.product-form") ||
-      document.querySelector('[id^="product-form"]');
+    var form = findProductForm();
     var input = form
       ? form.querySelector('input[name="quantity"]:not([type="hidden"])')
       : null;
@@ -192,10 +258,7 @@
    * @returns {HTMLButtonElement | HTMLInputElement | null}
    */
   function findPrimaryAddToCartButton() {
-    var form =
-      document.querySelector('form[action*="/cart/add"]') ||
-      document.querySelector("form.product-form") ||
-      document.querySelector('[id^="product-form"]');
+    var form = findProductForm();
     if (!form) return null;
     var addButton = form.querySelector(
       'button[type="submit"], input[type="submit"]',
@@ -249,11 +312,7 @@
   function setupAvailabilitySync(container, dskBtn) {
     syncAvailabilityState(container, dskBtn);
 
-    var form =
-      document.querySelector('form[action*="/cart/add"]') ||
-      document.querySelector("form.product-form") ||
-      document.querySelector('[id^="product-form"]');
-    if (!form) return;
+    var form = findProductForm();
 
     var scheduleSync = function () {
       window.setTimeout(function () {
@@ -261,16 +320,95 @@
       }, 0);
     };
 
-    form.addEventListener("change", scheduleSync);
-    form.addEventListener("input", scheduleSync);
+    var scheduleSyncDelayed = function () {
+      window.setTimeout(function () {
+        syncAvailabilityState(container, dskBtn);
+      }, 150);
+    };
 
-    var observer = new MutationObserver(scheduleSync);
-    observer.observe(form, {
-      subtree: true,
-      childList: true,
-      attributes: true,
-      attributeFilter: ["disabled", "aria-disabled", "class", "value"],
-    });
+    if (form) {
+      form.addEventListener("change", scheduleSync);
+      form.addEventListener("input", scheduleSync);
+
+      var observer = new MutationObserver(scheduleSync);
+      observer.observe(form, {
+        subtree: true,
+        childList: true,
+        attributes: true,
+        attributeFilter: ["disabled", "aria-disabled", "class", "value"],
+      });
+    }
+
+    // Dawn: select options[], Horizon: radio – change събития на document (capture)
+    document.addEventListener(
+      "change",
+      function (event) {
+        if (isProductVariantOptionTarget(event.target)) {
+          scheduleSyncDelayed();
+        }
+      },
+      true,
+    );
+
+    document.addEventListener(
+      "click",
+      function (event) {
+        var target = event.target;
+        if (
+          target instanceof HTMLInputElement &&
+          target.type === "radio" &&
+          isProductVariantOptionTarget(target)
+        ) {
+          scheduleSyncDelayed();
+        }
+      },
+      true,
+    );
+
+    setupVariantChangeObserver(scheduleSyncDelayed);
+  }
+
+  /**
+   * Следи input[name="id"] и script[data-selected-variant] – Dawn обновява variant без radio.
+   * @param {function(): void} onVariantChange
+   */
+  function setupVariantChangeObserver(onVariantChange) {
+    var idInput = document.querySelector(
+      'form[action*="cart/add"] input[name="id"], form[data-type="add-to-cart-form"] input[name="id"]',
+    );
+    if (idInput instanceof HTMLInputElement) {
+      var lastVariantId = idInput.value || "";
+      var onIdChange = function () {
+        var currentId = idInput.value || "";
+        if (currentId && currentId !== lastVariantId) {
+          lastVariantId = currentId;
+          onVariantChange();
+        }
+      };
+      idInput.addEventListener("change", onIdChange);
+      new MutationObserver(onIdChange).observe(idInput, {
+        attributes: true,
+        attributeFilter: ["value"],
+      });
+    }
+
+    var selectedScript = document.querySelector(
+      'script[type="application/json"][data-selected-variant]',
+    );
+    if (selectedScript) {
+      var lastScriptContent = selectedScript.textContent || "";
+      new MutationObserver(function () {
+        var currentContent = selectedScript.textContent || "";
+        if (currentContent && currentContent !== lastScriptContent) {
+          lastScriptContent = currentContent;
+          onVariantChange();
+        }
+      }).observe(selectedScript, {
+        characterData: true,
+        childList: true,
+        subtree: true,
+      });
+    }
   }
 
   /**
