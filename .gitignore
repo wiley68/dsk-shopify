@@ -15,3 +15,5 @@
 !snippets/dsk-cart-button.liquid
 !assets/dsk-cart-button.css
 !assets/dsk-cart-button.js
+!.cursor/
+!.cursor/settings.json
