@@ -3,6 +3,9 @@
 
 # Допускай само тези файлове
 !.gitignore
+!README.md
+!install-settings.txt
+!install.pdf
 !.shopifyignore
 !.theme-check.yml
 !shopify-theme-procedure.txt
@@ -17,3 +20,5 @@
 !assets/dsk-cart-button.js
 !.cursor/
 !.cursor/settings.json
+!scripts/
+!scripts/generate-install-pdf.mjs

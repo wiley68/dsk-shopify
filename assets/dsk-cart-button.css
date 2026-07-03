@@ -36,12 +36,12 @@
   align-items: center;
   justify-content: center;
   font-family: inherit;
-  font-size: 1rem;
-  line-height: 1.25;
+  font-size: 1.5rem;
+  line-height: 1.75;
   cursor: pointer;
   appearance: none;
   -webkit-appearance: none;
-  border: 1px solid rgba(0, 0, 0, 0.18);
+  border: 2px solid rgba(0, 0, 0, 0.48);
   border-radius: var(--dskapi-btn-radius, 14px);
   background-color: #fff;
   color: #1a1a1a;
@@ -88,7 +88,7 @@
 
 #dskapi-cart-button-container .dskapi-btn-logo img {
   width: auto;
-  height: 1.25em;
+  height: 2.5rem;
   max-width: none;
   object-fit: contain;
 }

@@ -1,7 +1,23 @@
 # Файлове извън стандартната структура на темата – НЕ се качват при shopify theme push.
-# Служат за git и локална работа. Виж shopify-theme-procedure.txt.
+# Качват се само assets/ и snippets/. Всичко останало е за git и локална работа.
 .gitignore
 .theme-check.yml
-shopify-theme-procedure.txt
+.shopifyignore
+
+# Редакторски настройки
 .cursor/
-.cursor/settings.json
+
+# Документация и инсталация (не са част от темата)
+README.md
+install-settings.txt
+install.pdf
+install.html
+shopify-theme-procedure.txt
+
+# Скрипт за генериране на PDF
+scripts/
+
+# Временни зависимости при локална работа
+node_modules/
+package.json
+package-lock.json
